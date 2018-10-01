@@ -10,7 +10,7 @@ namespace ThumbnailCreator
         static void Main(string[] args)
         {
             // Create a simple image
-            using (var surface = SKSurface.Create(new SKImageInfo(640, 480, SKColorType.Rgba8888)))
+            using (var surface = SKSurface.Create(new SKImageInfo(640, 480, SKColorType.Bgra8888)))
             {
                 // Clear the canvas
                 var canvas = surface.Canvas;
@@ -26,7 +26,7 @@ namespace ThumbnailCreator
                     {
                         Color = new SKColor(255, 0, 0, 255),
                         IsAntialias = false, // Personal preference
-                         StrokeWidth = thickness,
+                        StrokeWidth = thickness,
                         Style = SKPaintStyle.Stroke
                     }
                 );
