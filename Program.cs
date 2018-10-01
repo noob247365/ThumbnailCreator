@@ -10,7 +10,8 @@ namespace ThumbnailCreator
         static void Main(string[] args)
         {
             // Create a simple image
-            using (var surface = SKSurface.Create(new SKImageInfo(640, 480, SKColorType.Bgra8888)))
+            var colorType = Helpers.IsWindows ? SKColorType.Bgra8888 : SKColorType.Rgba8888;
+            using (var surface = SKSurface.Create(new SKImageInfo(640, 480, colorType)))
             {
                 // Clear the canvas
                 var canvas = surface.Canvas;

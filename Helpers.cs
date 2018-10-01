@@ -1,28 +1,34 @@
 using System;
- using System.IO;
+using System.IO;
+using System.Runtime.InteropServices;
 
- using SkiaSharp;
+using SkiaSharp;
 
- namespace ThumbnailCreator
- {
-     public static class Helpers
-     {
-         #region Image IO
+namespace ThumbnailCreator
+{
+    public static class Helpers
+    {
+        #region Image IO
 
-         public static void SaveToFile(this SKImage image, string fileName,
-             SKEncodedImageFormat format = SKEncodedImageFormat.Png, int quality = 100)
-         {
-             // Ensure the output path exists
-             string fullPath = Path.GetFullPath(fileName);
-             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+        public static void SaveToFile(this SKImage image, string fileName,
+            SKEncodedImageFormat format = SKEncodedImageFormat.Png, int quality = 100)
+        {
+            // Ensure the output path exists
+            string fullPath = Path.GetFullPath(fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
-             // Actually save to the file
-             using (var stream = File.Create(fullPath))
-             using (var data = image.Encode(format, quality))
-                 data.SaveTo(stream);
-         }
+            // Actually save to the file
+            using (var stream = File.Create(fullPath))
+            using (var data = image.Encode(format, quality))
+                data.SaveTo(stream);
+        }
 
-         #endregion
-     }
- }
- 
+        #endregion
+
+        #region Operating system
+
+        public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        #endregion
+    }
+}
