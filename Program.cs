@@ -9,32 +9,43 @@ namespace ThumbnailCreator
     {
         static void Main(string[] args)
         {
-            // Create a simple image
-            var colorType = Helpers.IsWindows ? SKColorType.Bgra8888 : SKColorType.Rgba8888;
-            using (var surface = SKSurface.Create(new SKImageInfo(640, 480, colorType)))
+            // Load the background image
+            using (var background = Helpers.LoadFromFile("res/Background.png".ToOS()))
             {
-                // Clear the canvas
-                var canvas = surface.Canvas;
-                var bounds = canvas.DeviceClipBounds;
-                canvas.Clear(new SKColor(0, 0, 0, 0));
+                // Create a surface of matching size
+                var info = new SKImageInfo(background.Width, background.Height, Helpers.RGBA);
+                using (var surface = SKSurface.Create(info))
+                {
+                    // Clear the canvas
+                    var canvas = surface.Canvas;
+                    canvas.Clear(new SKColor(0, 0, 0, 0));
 
-                // Draw a circle at the center
-                float thickness = 10.0f;
-                canvas.DrawCircle(
-                    bounds.Width * 0.5f, bounds.Height * 0.5f,
-                    (Math.Min(bounds.Width, bounds.Height) - thickness) * 0.5f,
-                    new SKPaint
+                    // Draw the background
+                    canvas.DrawImage(background, 0.0f, 0.0f);
+
+                    // Draw some text at the center
+                    using (var stream = File.OpenRead("res/Fonts/Minecrafter_3/Minecrafter_3.ttf".ToOS()))
+                    using (var data = SKData.Create(stream))
+                    using (var minecrafter3 = SKTypeface.FromData(data))
                     {
-                        Color = new SKColor(255, 0, 0, 255),
-                        IsAntialias = false, // Personal preference
-                        StrokeWidth = thickness,
-                        Style = SKPaintStyle.Stroke
+                        var paint = new SKPaint
+                        {
+                            Color = new SKColor(255, 255, 255, 255),
+                            IsAntialias = false,
+                            Style = SKPaintStyle.Fill,
+                            TextSize = 96.0f,
+                            Typeface = minecrafter3
+                        };
+                        canvas.DrawTextExt(
+                            "Font Test\n(with an A)", info.Width * 0.5f,
+                            info.Height * 0.5f, paint,
+                            HAlign.Center, VAlign.Middle
+                        );
                     }
-                );
 
-                // Save to an output image
-                using (var image = surface.Snapshot())
-                    image.SaveToFile(Path.Combine("out", "Test.png"));
+                    // Save the surface
+                    surface.SaveToFile("out/Test.png".ToOS());
+                }
             }
         }
     }

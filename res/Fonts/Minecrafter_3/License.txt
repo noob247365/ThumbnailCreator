@@ -1,0 +1,6 @@
+﻿This Font "MineCrafter 3" is under the creative commons license and can be used commercially and non-commercialy,
+as long as it is passed along unchanged and in whole, with credit to one of the following names ; 
+
+"Asherz08", "MadPixel", "Ashley Denham"
+
+{http://creativecommons.org/licenses/}
