@@ -12,25 +12,38 @@ namespace ThumbnailCreator
     {
         #region Canvas helpers
 
+        /// <summary>
+        /// Draw a string of text (supports new line characters)
+        /// </summary>
+        /// <param name="canvas">The SKCanvas to draw on</param>
+        /// <param name="text">Text string of text to display</param>
+        /// <param name="xpos">The x coordinate of the text (meaning is dependent on <paramref name="halign"/>)</param>
+        /// <param name="ypos">The y coordinate of the text (meaning is dependent on <paramref name="valign"/>)</param>
+        /// <param name="paint">The SKPaint controlling drawing</param>
+        /// <param name="halign">How to horizontally align the text (default: Left)</param>
+        /// <param name="valign">How to vertically align the text (default: Top)</param>
+        /// <param name="allCapsFont">If the font is in all caps; will ignore space below baseline (default: false)</param>
         public static void DrawTextExt(this SKCanvas canvas, string text, float xpos,
-            float ypos, SKPaint paint, HAlign halign = HAlign.Left, VAlign valign = VAlign.Top)
+            float ypos, SKPaint paint, HAlign halign = HAlign.Left, VAlign valign = VAlign.Top,
+            bool allCapsFont = false)
         {
             // Ignore blank text
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
             // Split the text into lines
-            var lines = text.Split('\n');
+            var lines = text.Replace("\r", "").Split('\n');
 
             // Determine the maximum size
-            float lineHeight = paint.FontMetrics.Bottom - paint.FontMetrics.Top;
-            float lineGap = paint.FontMetrics.Leading;
+            float lineHeight = (allCapsFont ? 0 : paint.FontMetrics.Bottom) - paint.FontMetrics.Top;
+            float lineGap = paint.FontMetrics.Leading + (allCapsFont ? paint.FontMetrics.Bottom : 0);
             float totalHeight = lineHeight * lines.Length + lineGap * (lines.Length - 1);
 
-            // Handle the alignment
+            // Save the previous alignment
             var prevAlign = paint.TextAlign;
             try
             {
+                // Handle the alignment
                 switch (halign)
                 {
                     case HAlign.Left:
@@ -44,21 +57,16 @@ namespace ThumbnailCreator
                         paint.TextAlign = SKTextAlign.Right;
                         break;
                 }
-                float y;
+                float y = ypos - paint.FontMetrics.Top;
                 switch (valign)
                 {
-                    case VAlign.Top:
-                    default:
-                        y = ypos;
-                        break;
                     case VAlign.Middle:
-                        y = ypos - totalHeight * 0.5f;
+                        y -= totalHeight * 0.5f;
                         break;
                     case VAlign.Bottom:
-                        y = ypos - totalHeight;
+                        y -= totalHeight;
                         break;
                 }
-                y -= paint.FontMetrics.Top;
 
                 // Draw the text
                 foreach (string line in lines)
@@ -69,6 +77,7 @@ namespace ThumbnailCreator
             }
             finally
             {
+                // Restore the original text alignment
                 paint.TextAlign = prevAlign;
             }
         }
@@ -77,13 +86,13 @@ namespace ThumbnailCreator
 
         #region Image IO
 
-        public static SKImage LoadFromFile(string fileName)
-        {
-            using (var stream = File.OpenRead(fileName))
-            using (var data = SKData.Create(stream))
-                return SKImage.FromEncodedData(data);
-        }
-
+        /// <summary>
+        /// Save an image to a file
+        /// </summary>
+        /// <param name="image">The image to save</param>
+        /// <param name="fileName">The path to the output file</param>
+        /// <param name="format">The image format for encoding (default: Png)</param>
+        /// <param name="quality">Quality level for the image; between 0 and 100 (default: 100)</param>
         public static void SaveToFile(this SKImage image, string fileName,
             SKEncodedImageFormat format = SKEncodedImageFormat.Png, int quality = 100)
         {
@@ -97,6 +106,13 @@ namespace ThumbnailCreator
                 data.SaveTo(stream);
         }
 
+        /// <summary>
+        /// Save a surface to a file
+        /// </summary>
+        /// <param name="surface">The surface to save</param>
+        /// <param name="fileName">The path to the output file</param>
+        /// <param name="format">The image format for encoding (default: Png)</param>
+        /// <param name="quality">Quality level for the image; between 0 and 100 (default: 100)</param>
         public static void SaveToFile(this SKSurface surface, string fileName,
             SKEncodedImageFormat format = SKEncodedImageFormat.Png, int quality = 100)
         {
@@ -106,8 +122,28 @@ namespace ThumbnailCreator
 
         #endregion
 
+        #region Operating system
+
+        /// <summary>
+        /// Determine if the operating system is Windows
+        /// </summary>
+        /// <returns>If the operating system is Windows</returns>
+        public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        /// <summary>
+        /// The supported SKColorType for 32-bit RGBA (OS dependent)
+        /// </summary>
+        public static SKColorType RGBA => IsWindows ? SKColorType.Bgra8888 : SKColorType.Rgba8888;
+
+        #endregion
+
         #region Path helpers
 
+        /// <summary>
+        /// Change a forward-slash path into an OS-specific path
+        /// </summary>
+        /// <param name="path">Forward-slash path for conversion</param>
+        /// <returns>The operating specific path</returns>
         public static string ToOS(this string path)
         {
             return path.Replace('/', Path.DirectorySeparatorChar);
@@ -115,11 +151,31 @@ namespace ThumbnailCreator
 
         #endregion
 
-        #region Operating system
+        #region Resource helpers
 
-        public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        /// <summary>
+        /// Load a font from a file
+        /// </summary>
+        /// <param name="fileName">The path to the input file</param>
+        /// <returns>The loaded font</returns>
+        public static SKTypeface LoadFont(string fileName)
+        {
+            using (var stream = File.OpenRead(fileName))
+            using (var data = SKData.Create(stream))
+                return SKTypeface.FromData(data);
+        }
 
-        public static SKColorType RGBA => IsWindows ? SKColorType.Bgra8888 : SKColorType.Rgba8888;
+        /// <summary>
+        /// Load an image from a file
+        /// </summary>
+        /// <param name="fileName">The path to the input file</param>
+        /// <returns>The resulting image</returns>
+        public static SKImage LoadImage(string fileName)
+        {
+            using (var stream = File.OpenRead(fileName))
+            using (var data = SKData.Create(stream))
+                return SKImage.FromEncodedData(data);
+        }
 
         #endregion
     }
