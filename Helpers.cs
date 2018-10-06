@@ -3,14 +3,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-
+using System.Text;
 using SkiaSharp;
 
 namespace ThumbnailCreator
 {
     public static class Helpers
     {
-        #region Canvas helpers
+        #region Config helpers
+
+        /// <summary>
+        /// Get a property from the config, or log it was required
+        /// </summary>
+        /// <param name="config">The config to query/pull from</param>
+        /// <param name="desc">Description of what to specify (on error)</param>
+        /// <param name="value">Value from config</param>
+        /// <param name="key">Key for property to retrieve</param>
+        /// <returns>If the key was present</returns>
+        public static bool Required(this Config config, string desc, out string value, params string[] key)
+        {
+            if (config.TryGet(out value, key) && !string.IsNullOrWhiteSpace(value))
+                return true;
+            Console.WriteLine("Must specify {0} via the \"{1}\" key", desc, string.Join('/', key));
+            return false;
+        }
+
+        #endregion
+
+        #region Drawing helpers
+
+        #region Actual drawing
 
         /// <summary>
         /// Draw lines of text
@@ -102,17 +124,9 @@ namespace ThumbnailCreator
             DrawTextExt(canvas, GetLines(text), xpos, ypos, paint, halign, valign, allCapsFont);
         }
 
-        /// <summary>
-        /// Split a string of text into lines
-        /// </summary>
-        /// <param name="text">Full text string</param>
-        /// <returns>An array of lines</returns>
-        public static string[] GetLines(this string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return new string[] { };
-            return text.Replace("\r", "").Split('\n');
-        }
+        #endregion
+
+        #region Helper methods
 
         /// <summary>
         /// Measure the full bounds of a text string (supports new line characters)
@@ -159,6 +173,8 @@ namespace ThumbnailCreator
         {
             return MeasureTextExt(paint, GetLines(text), allCapsFont);
         }
+
+        #endregion
 
         #endregion
 
@@ -253,6 +269,50 @@ namespace ThumbnailCreator
             using (var stream = File.OpenRead(fileName))
             using (var data = SKData.Create(stream))
                 return SKImage.FromEncodedData(data);
+        }
+
+        #endregion
+
+        #region String helpers
+
+        /// <summary>
+        /// Parse a string either as raw pixel length, or as a percentage
+        /// </summary>
+        /// <param name="text">String to parse</param>
+        /// <param name="ruler">The length to scale against</param>
+        /// <returns>The distance</returns>
+        public static float ParseAsDistance(this string text, float ruler)
+        {
+            if (text.EndsWith("px"))
+                return int.Parse(text.Substring(0, text.Length - 2));
+            return float.Parse(text) * ruler;
+        }
+
+        /// <summary>
+        /// Remove the BOM if present in a string
+        /// </summary>
+        /// <param name="text">Original UTF8 string</param>
+        /// <returns>Corrected result</returns>
+        public static string FixBOM(this string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+            if (bytes.Length >= 3 && bytes[0] == 239 && bytes[1] == 187 && bytes[2] == 191)
+                return text.Substring(3);
+            return text;
+        }
+
+        /// <summary>
+        /// Split a string of text into lines
+        /// </summary>
+        /// <param name="text">Full text string</param>
+        /// <returns>An array of lines</returns>
+        public static string[] GetLines(this string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return new string[] { };
+            return text.Replace("\r", "").Split('\n');
         }
 
         #endregion
