@@ -13,31 +13,28 @@ namespace ThumbnailCreator
         #region Canvas helpers
 
         /// <summary>
-        /// Draw a string of text (supports new line characters)
+        /// Draw lines of text
         /// </summary>
         /// <param name="canvas">The SKCanvas to draw on</param>
-        /// <param name="text">Text string of text to display</param>
+        /// <param name="lines">Lines of text to display</param>
         /// <param name="xpos">The x coordinate of the text (meaning is dependent on <paramref name="halign"/>)</param>
         /// <param name="ypos">The y coordinate of the text (meaning is dependent on <paramref name="valign"/>)</param>
         /// <param name="paint">The SKPaint controlling drawing</param>
         /// <param name="halign">How to horizontally align the text (default: Left)</param>
         /// <param name="valign">How to vertically align the text (default: Top)</param>
         /// <param name="allCapsFont">If the font is in all caps; will ignore space below baseline (default: false)</param>
-        public static void DrawTextExt(this SKCanvas canvas, string text, float xpos,
+        public static void DrawTextExt(this SKCanvas canvas, string[] lines, float xpos,
             float ypos, SKPaint paint, HAlign halign = HAlign.Left, VAlign valign = VAlign.Top,
             bool allCapsFont = false)
         {
-            // Ignore blank text
-            if (string.IsNullOrWhiteSpace(text))
+            // Ignore empty lines
+            if (lines == null || lines.Length == 0)
                 return;
 
-            // Split the text into lines
-            var lines = text.Replace("\r", "").Split('\n');
-
             // Determine the maximum size
-            float lineHeight = (allCapsFont ? 0 : paint.FontMetrics.Bottom) - paint.FontMetrics.Top;
-            float lineGap = paint.FontMetrics.Leading + (allCapsFont ? paint.FontMetrics.Bottom : 0);
-            float totalHeight = lineHeight * lines.Length + lineGap * (lines.Length - 1);
+            float totalHeight = MeasureTextExt(
+                paint, lines, out float lineHeight, out float lineGap, allCapsFont
+            ).Height;
 
             // Save the previous alignment
             var prevAlign = paint.TextAlign;
@@ -80,6 +77,87 @@ namespace ThumbnailCreator
                 // Restore the original text alignment
                 paint.TextAlign = prevAlign;
             }
+        }
+
+        /// <summary>
+        /// Draw a string of text (supports new line characters)
+        /// </summary>
+        /// <param name="canvas">The SKCanvas to draw on</param>
+        /// <param name="text">Text string of text to display</param>
+        /// <param name="xpos">The x coordinate of the text (meaning is dependent on <paramref name="halign"/>)</param>
+        /// <param name="ypos">The y coordinate of the text (meaning is dependent on <paramref name="valign"/>)</param>
+        /// <param name="paint">The SKPaint controlling drawing</param>
+        /// <param name="halign">How to horizontally align the text (default: Left)</param>
+        /// <param name="valign">How to vertically align the text (default: Top)</param>
+        /// <param name="allCapsFont">If the font is in all caps; will ignore space below baseline (default: false)</param>
+        public static void DrawTextExt(this SKCanvas canvas, string text, float xpos,
+            float ypos, SKPaint paint, HAlign halign = HAlign.Left, VAlign valign = VAlign.Top,
+            bool allCapsFont = false)
+        {
+            // Ignore blank text
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            // Draw after splitting into lines
+            DrawTextExt(canvas, GetLines(text), xpos, ypos, paint, halign, valign, allCapsFont);
+        }
+
+        /// <summary>
+        /// Split a string of text into lines
+        /// </summary>
+        /// <param name="text">Full text string</param>
+        /// <returns>An array of lines</returns>
+        public static string[] GetLines(this string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return new string[] { };
+            return text.Replace("\r", "").Split('\n');
+        }
+
+        /// <summary>
+        /// Measure the full bounds of a text string (supports new line characters)
+        /// </summary>
+        /// <param name="paint">The SKPaint controlling drawing</param>
+        /// <param name="lines">Lines of text to measure</param>
+        /// <param name="lineHeight">How tall one line of text is</param>
+        /// <param name="lineGap">The gap between each line of text</param>
+        /// <param name="allCapsFont">If the font is in all caps; will ignore space below baseline (default: false)</param>
+        /// <returns>The full bounds of the text string</returns>
+        private static SKSize MeasureTextExt(this SKPaint paint, string[] lines,
+            out float lineHeight, out float lineGap, bool allCapsFont = false)
+        {
+            lineHeight = (allCapsFont ? 0 : paint.FontMetrics.Bottom) - paint.FontMetrics.Top;
+            lineGap = paint.FontMetrics.Leading + (allCapsFont ? paint.FontMetrics.Bottom : 0);
+            if (lines.Length == 0)
+                return new SKSize(0, 0);
+            return new SKSize(
+                lines.Max(line => paint.MeasureText(line)),
+                lineHeight * lines.Length + lineGap * (lines.Length - 1)
+            );
+        }
+
+        /// <summary>
+        /// Measure the full bounds of lines of text
+        /// </summary>
+        /// <param name="paint">The SKPaint controlling drawing</param>
+        /// <param name="lines">Lines of text to measure</param>
+        /// <param name="allCapsFont">If the font is in all caps; will ignore space below baseline (default: false)</param>
+        /// <returns>The full bounds of the text string</returns>
+        public static SKSize MeasureTextExt(this SKPaint paint, string[] lines, bool allCapsFont = false)
+        {
+            return MeasureTextExt(paint, lines, out float _, out float _, allCapsFont);
+        }
+
+        /// <summary>
+        /// Measure the full bounds of a text string (supports new line characters)
+        /// </summary>
+        /// <param name="paint">The SKPaint controlling drawing</param>
+        /// <param name="text">Text string of text to measure</param>
+        /// <param name="allCapsFont">If the font is in all caps; will ignore space below baseline (default: false)</param>
+        /// <returns>The full bounds of the text string</returns>
+        public static SKSize MeasureTextExt(this SKPaint paint, string text, bool allCapsFont = false)
+        {
+            return MeasureTextExt(paint, GetLines(text), allCapsFont);
         }
 
         #endregion
