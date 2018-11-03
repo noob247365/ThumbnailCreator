@@ -17,6 +17,6 @@ This project uses [SkiaSharp](https://github.com/mono/SkiaSharp) for the graphic
 
 [My YouTube channel](https://www.youtube.com/channel/UCk0Tq0W_gcEtZV-9xg9zm2Q/), if anyone is interested.
 
-## Current progress:
+## Last Thumbnail Generated:
 
-![Current output](SampleOutput.png)
+![Last Thumbnail](LastThumbnail.png)
