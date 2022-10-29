@@ -13,7 +13,7 @@ namespace ThumbnailCreator
             try
             {
                 CreateThumbnail(args);
-                Console.WriteLine("Thumbnail generated succesfully");
+                Console.WriteLine("Thumbnail generated successfully");
             }
             catch (Exception ex)
             {
@@ -121,7 +121,9 @@ namespace ThumbnailCreator
                     int episode = int.Parse(configEpisode);
                     if (!config.Required("the video's title", out string title, "video", "title"))
                         return;
-                    string content = $"#{episode} {title}";
+                    if (!config.Required("if the episode number should appear in the thumbnail", out string configIncludeEpisodeNumber, "text", "include.episode.number"))
+                        return;
+                    string content = bool.Parse(configIncludeEpisodeNumber) ? $"#{episode} {title}" : title;
 
                     // Draw some text at the center
                     using (var minecrafter3 = Helpers.LoadFont(fontFile.ToOS()))
