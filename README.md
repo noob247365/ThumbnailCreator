@@ -32,6 +32,7 @@ This project uses [SkiaSharp](https://github.com/mono/SkiaSharp) for the graphic
 - Overwatch logo: OW Logo White (cropped) from [Blizzard Press Center](https://blizzard.gamespress.com/Overwatch#?tab=logos)
 - Overwatch 2 logo: Overwatch2 Secondary DKBKGD (cropped) from [Blizzard Press Center](https://blizzard.gamespress.com/overwatch-2#?tab=logos-3)
 - Modern Warfare 2 logo: cod-mw2-logo from [Call of Duty MW2 Homepage](https://www.callofduty.com/modernwarfare2)
+- Battlefield 2042 logo: Battlefield_2042_logo from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Battlefield_2042_logo.svg)
 
 ## Additional:
 
