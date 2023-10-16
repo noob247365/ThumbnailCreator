@@ -12,12 +12,12 @@ dotnet run -- <config name/file>
 
 Relative path to the config file
 ```bash
-dotnet run -- "./res/Config/Overwatch.config"
+dotnet run -- "./res/Config/Counter Strike 2.config"
 ```
 
 Name of included config
 ```bash
-dotnet run -- "Overwatch 2"
+dotnet run -- "Counter Strike 2"
 ```
 
 ## Dependencies:
@@ -33,6 +33,7 @@ This project uses [SkiaSharp](https://github.com/mono/SkiaSharp) for the graphic
 - Overwatch 2 logo: Overwatch2 Secondary DKBKGD (cropped) from [Blizzard Press Center](https://blizzard.gamespress.com/overwatch-2#?tab=logos-3)
 - Modern Warfare 2 logo: cod-mw2-logo from [Call of Duty MW2 Homepage](https://www.callofduty.com/modernwarfare2)
 - Battlefield 2042 logo: Battlefield_2042_logo from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Battlefield_2042_logo.svg)
+- Counter Strike 2 logo: Counter Strike 2 (cropped, inverted) [Logowik](https://logowik.com/counter-strike-2-logo-vector-54963.html)
 
 ## Additional:
 
