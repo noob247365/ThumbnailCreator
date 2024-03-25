@@ -34,6 +34,7 @@ This project uses [SkiaSharp](https://github.com/mono/SkiaSharp) for the graphic
 - Modern Warfare 2 logo: cod-mw2-logo from [Call of Duty MW2 Homepage](https://www.callofduty.com/modernwarfare2)
 - Battlefield 2042 logo: Battlefield_2042_logo from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Battlefield_2042_logo.svg)
 - Counter Strike 2 logo: Counter Strike 2 (cropped, inverted) [Logowik](https://logowik.com/counter-strike-2-logo-vector-54963.html)
+- Fortnite logo: Taken from their [home page](https://www.fortnite.com/)
 
 ## Additional:
 
